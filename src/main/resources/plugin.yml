@@ -3,3 +3,5 @@ version: ${project.version}
 main: guojtim.mmdrops.MMdrops
 api-version: 1.17
 authors: [ Bnpig ]
+
+depend: [MythicMobs]
