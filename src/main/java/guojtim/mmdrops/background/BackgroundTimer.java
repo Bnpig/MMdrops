@@ -3,7 +3,6 @@ package guojtim.mmdrops.background;
 import guojtim.mmdrops.MMDropItem.PlayerDrops;
 import guojtim.mmdrops.MMdrops;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;

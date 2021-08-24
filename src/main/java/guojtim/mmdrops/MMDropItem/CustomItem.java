@@ -1,6 +1,7 @@
 package guojtim.mmdrops.MMDropItem;
 
 import guojtim.mmdrops.MMdrops;
+import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.effect.MobEffect;
@@ -29,8 +30,10 @@ public class CustomItem {
     private Location finalLocation;
     private Long Age;
     private MMdrops plugin;
+    private MythicMob mythicMob;
 
-    public CustomItem(ItemStack itemStack, Location location,Player player,MMdrops plugin){
+    public CustomItem(ItemStack itemStack, Location location, Player player, MMdrops plugin, MythicMob mythicMob){
+        this.mythicMob = mythicMob;
         this.plugin = plugin;
         this.itemStack = itemStack;
         this.nmsItem = CraftItemStack.asNMSCopy(itemStack);
@@ -112,6 +115,7 @@ public class CustomItem {
         connection.sendPacket(new PacketPlayOutSpawnEntity(item));
         MobEffect mbeffect = new MobEffect(new MobEffect(MobEffectList.fromId(24),Integer.MAX_VALUE,0,false,false));
         this.item.setFlag(6,true);
+        this.item.setNoGravity(true);
         connection.sendPacket(new PacketPlayOutEntityEffect(item.getId(),mbeffect));
         connection.sendPacket(new PacketPlayOutEntityMetadata(item.getId(), item.getDataWatcher(), true));
 

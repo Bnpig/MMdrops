@@ -1,11 +1,13 @@
 package guojtim.mmdrops.Event;
 
-import guojtim.mmdrops.MMDropItem.PlayerDrops;
 import guojtim.mmdrops.MMdrops;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDespawnEvent;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobSpawnEvent;
+import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
+import io.lumine.xikage.mythicmobs.mobs.MythicMob;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,7 +16,6 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,7 +27,7 @@ public class Event implements Listener {
      */
     private HashMap<UUID,UUID> trans = new HashMap<>();
     private HashMap<UUID, Set<UUID>> killer = new HashMap<>();
-    private MMdrops plugin;
+    private final MMdrops plugin;
     public Event(MMdrops plugin){
         //instance
         this.plugin = plugin;
@@ -60,12 +61,13 @@ public class Event implements Listener {
      */
     @EventHandler
     public void onMMDeath(MythicMobDeathEvent event){
+        MythicMob mob = event.getMobType();
         List<ItemStack> drops = event.getDrops();
         for (UUID uuid: this.killer.get(event.getEntity().getUniqueId())){
 
 
             List<UUID> fallingBlockUUIDs =
-                    plugin.getPlayerDrops(uuid).addItems(drops,event.getEntity().getLocation());
+                    plugin.getPlayerDrops(uuid).addItems(drops,event.getEntity().getLocation(),mob);
             for (UUID fallingblockuuid:fallingBlockUUIDs) {
                 this.trans.put(fallingblockuuid, uuid);
             }
@@ -91,8 +93,8 @@ public class Event implements Listener {
             if (trans.containsKey(fallingBlock.getUniqueId())){
                 plugin.getPlayerDrops(trans.get(fallingBlock.getUniqueId())).setFinalLocation(fallingBlock);
                 trans.remove(fallingBlock.getUniqueId());
+                event.setCancelled(true);
             }
-            event.setCancelled(true);
         }
     }
 
@@ -106,8 +108,8 @@ public class Event implements Listener {
             if (trans.containsKey(fallingBlock.getUniqueId())){
                 plugin.getPlayerDrops(trans.get(fallingBlock.getUniqueId())).setFinalLocation(fallingBlock);
                 trans.remove(fallingBlock.getUniqueId());
+                event.setCancelled(true);
             }
-            event.setCancelled(true);
         }
     }
 
@@ -115,9 +117,6 @@ public class Event implements Listener {
         this.trans.remove(uuid);
     }
 
-    public int getAmount(){
-        return this.trans.size();
-    }
 
     /**
      * 當 MM 怪物被攻擊時
@@ -126,8 +125,14 @@ public class Event implements Listener {
     public void onMMDamaged(EntityDamageByEntityEvent event){
         if (event.getDamager() instanceof Player && MythicMobs.inst().getMobManager().isActiveMob(event.getEntity().getUniqueId())){
             this.killer.get(event.getEntity().getUniqueId()).add(event.getDamager().getUniqueId());
+        }else if (MythicMobs.inst().getMobManager().isActiveMob(event.getEntity().getUniqueId())){
+            if (event.getDamager() instanceof Arrow){
+                Arrow arrow = (Arrow) event.getDamager();
+                if (arrow.getShooter() instanceof Player){
+                    Player player = (Player) arrow.getShooter();
+                    this.killer.get(event.getEntity().getUniqueId()).add(player.getUniqueId());
+                }
+            }
         }
-
     }
-
 }
