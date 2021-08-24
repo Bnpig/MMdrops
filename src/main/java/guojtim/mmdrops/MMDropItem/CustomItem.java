@@ -1,7 +1,11 @@
 package guojtim.mmdrops.MMDropItem;
 
 import guojtim.mmdrops.MMdrops;
+import io.lumine.xikage.mythicmobs.io.MythicConfig;
 import io.lumine.xikage.mythicmobs.mobs.MythicMob;
+import io.lumine.xikage.mythicmobs.skills.placeholders.PlaceholderMeta;
+import io.lumine.xikage.mythicmobs.utils.config.ConfigurationSection;
+import io.lumine.xikage.mythicmobs.utils.config.file.FileConfiguration;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.effect.MobEffect;
@@ -54,9 +58,31 @@ public class CustomItem {
          * Motion
          */
         double dx,dy,dz;
-        dx = (Math.random()*10-5)/10;
-        dy = (Math.random()*5+1)/10;
-        dz = (Math.random()*10-5)/10;
+
+        MythicConfig config = this.mythicMob.getConfig();
+        String mobname = this.mythicMob.getInternalName();
+        ConfigurationSection configuration = config.getFileConfiguration().getConfigurationSection(mobname);
+
+        Integer xa = configuration.contains("MMDrops.x-mot.random") ?configuration.getInt("MMDrops.x-mot.random") : 10
+                ,xb = configuration.contains("MMDrops.x-mot.distance") ?configuration.getInt("MMDrops.x-mot.distance") : -5
+                ,xc = configuration.contains("MMDrops.x-mot.division") ?configuration.getInt("MMDrops.x-mot.division") : 10;
+
+        Integer ya = configuration.contains("MMDrops.y-mot.random") ?configuration.getInt("MMDrops.y-mot.random") : 5
+                ,yb = configuration.contains("MMDrops.y-mot.distance") ?configuration.getInt("MMDrops.y-mot.distance") : 1
+                ,yc = configuration.contains("MMDrops.y-mot.division") ?configuration.getInt("MMDrops.y-mot.division") : 10;
+
+        Integer za = configuration.contains("MMDrops.z-mot.random") ?configuration.getInt("MMDrops.z-mot.random") : 10
+                ,zb = configuration.contains("MMDrops.z-mot.distance") ?configuration.getInt("MMDrops.z-mot.distance") : -5
+                ,zc = configuration.contains("MMDrops.z-mot.division") ?configuration.getInt("MMDrops.z-mot.division") : 10;
+
+
+
+        dx = (Math.random()*xa+xb)/xc;
+        dy = (Math.random()*ya+yb)/yc;
+        dz = (Math.random()*za+zb)/zc;
+
+
+
 
         Vec3D motion = new Vec3D(dx,dy,dz);
 

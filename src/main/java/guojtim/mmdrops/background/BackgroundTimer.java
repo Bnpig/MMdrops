@@ -20,7 +20,7 @@ public class BackgroundTimer {
                     entry.getValue().check();
                 }
             }
-        }, 0L, 2L);
+        }, 0L, 1L);
     }
     public void onDisable(){
         Bukkit.getScheduler().cancelTask(this.taskID);
